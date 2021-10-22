@@ -1,11 +1,13 @@
 caption: edit-text
 created: 20131024141900000
-modified: 20211021091910134
+modified: 20211022232005114
 tags: Widgets
 title: EditTextWidget
 type: text/vnd.tiddlywiki
 
 ! Introduction
+
+Look I added some text here.
 
 The edit text widget provides a user interface in the browser for editing text tiddler fields. The editing element is dynamically bound to the underlying tiddler value: changes to the tiddler are instantly reflected, and any edits are instantly propogated.
 

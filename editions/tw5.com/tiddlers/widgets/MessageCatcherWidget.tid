@@ -1,12 +1,12 @@
 created: 20210309133636211
-modified: 20210711193113104
+modified: 20211022232020550
 tags: Widgets
 title: MessageCatcherWidget
 type: text/vnd.tiddlywiki
 
 ! Introduction
 
-<<.from-version "5.2.0">>
+<<.from-version "5.2.0">> Such a new and shiny widget.
 
 The message catcher widget traps [[messages|Messages]] dispatched within its child content, and allows invoking a series of ActionWidgets in response to those messages.
 
