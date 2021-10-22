@@ -1,12 +1,12 @@
 created: 20210309133636211
-modified: 20210711193113104
+modified: 20211022232020550
 tags: Widgets
 title: MessageCatcherWidget
 type: text/vnd.tiddlywiki
 
 ! Introduction
 
-<<.from-version "5.2.0">>
+<<.from-version "5.2.0">> Such a new and shiny widget.
 
 The message catcher widget traps [[messages|Messages]] dispatched within its child content, and allows invoking a series of ActionWidgets in response to those messages.
 
@@ -21,11 +21,13 @@ The content of the `<$messagecatcher>` widget is displayed normally.
 
 ! Variables
 
-The message catcher widget
+The message catcher widget sets the following variables within each action string:
 
 |!Variables |!Description |
 |`event-*` |All string-based properties of the `event` object, with the names prefixed with `event-` |
+|`list-event` |A list of the names of each the string-based properties of the `event` object (the names are not prefixed with `event-`) |
 |`event-paramObject-*` |All string-based properties of the `event.paramObject` object, with the names prefixed with `event-paramObject-` |
+|`list-event-paramObject` |A list of the names of each the string-based properties of the `event.paramObject` object (the names are not prefixed with `event-paramObject-`) |
 |`modifier` |For messages that originated with browser events, the modifier keys that were pressed when the event was fired. The possible modifiers are ''normal'' (no modifiers), ''ctrl'', ''ctrl-alt'', ''ctrl-shift'', ''alt'', ''alt-shift'', ''shift'' and ''ctrl-alt-shift'' |
 
 ! Example
