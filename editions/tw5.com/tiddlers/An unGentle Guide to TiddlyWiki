@@ -1,0 +1,14 @@
+created: 20150325170720682
+modified: 20211023180055141
+tags: HelloThere
+title: An unGentle Guide to TiddlyWiki
+type: text/vnd.tiddlywiki
+
+Did you ever feel like your data needed the nuclear option? No more Mr. Nice Data guy! Explode your data with the new data exploder plugin!
+
+<<list-links "[tag[HelloThere]]">>
+
+Also see:
+
+* [["Grok TiddlyWiki" by Soren Bjornstad]]
+* [[TiddlyWiki Video Tutorials by Francis Meetze]]
