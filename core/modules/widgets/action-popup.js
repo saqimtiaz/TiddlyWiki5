@@ -37,6 +37,7 @@ Compute the internal state of the widget
 ActionPopupWidget.prototype.execute = function() {
 	this.actionState = this.getAttribute("$state");
 	this.actionCoords = this.getAttribute("$coords");
+	this.floating = this.getAttribute("$floating","no") === "yes";
 };
 
 /*
@@ -57,7 +58,7 @@ Invoke the action associated with this widget
 ActionPopupWidget.prototype.invokeAction = function(triggeringWidget,event) {
 	// Trigger the popup
 	var popupLocationRegExp = /^\((-?[0-9\.E]+),(-?[0-9\.E]+),(-?[0-9\.E]+),(-?[0-9\.E]+)\)$/,
-		match = popupLocationRegExp.exec(this.actionCoords);
+		match = popupLocationRegExp.exec(this.actionCoords || "");
 	if(match) {
 		$tw.popup.triggerPopup({
 			domNode: null,
@@ -68,8 +69,11 @@ ActionPopupWidget.prototype.invokeAction = function(triggeringWidget,event) {
 				height: parseFloat(match[4])
 			},
 			title: this.actionState,
-			wiki: this.wiki
+			wiki: this.wiki,
+			floating: this.floating
 		});
+	} else {
+		$tw.popup.cancel(0);
 	}
 	return true; // Action was invoked
 };

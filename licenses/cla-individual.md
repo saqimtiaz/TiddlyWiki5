@@ -402,9 +402,13 @@ Nicolas Petton, @NicolasPetton, 2020/04/30
 
 Csaba Molnar, @mocsa, 2020/04/29
 
+Jonas Passerini, @passuf, 2020/05/14
+
 Dazhong Xia, @jdangerx, 2020/06/23
 
 Diep Pham, @favadi, 2020/07/30
+
+Adithya Badidey, @adithya-badidey, 2020/08/10
 
 Kamal Habash, @Kamal-Habash, 2020/08/28
 
@@ -412,4 +416,56 @@ Florian Kohrt, @fkohrt, 2020/09/10
 
 Gerald Liu, @gera2ld, 2020/09/25
 
+Stefano Stoduto, @OmbraDiFenice, 2020/10/03
+
+Ryan Kramer, @default-kramer, 2020/10/24
+
 Miha Lunar, @SmilyOrg, 2020/11/04
+
+Maki Lam, @makiaea, 2020/12/27
+
+Chris Nicoll, @clutterstack, 2020/12/28
+
+Odin Jorna, @OdinJorna, 2020/12/31
+
+Joe Bordes, @joebordes, 2021/01/02
+
+Glenn Dixon, @dixonge, 2021/01/03
+
+Russ Thomas, @codacodr, 2021/01/03
+
+Peter Neumark, @neumark, 2021/01/15
+
+Daniel Goß, @FlashSystems, 2021/01/19
+
+@leehawk787, 2021/01/21
+
+Yoonchae Lee, @BlueGreenMagick, 2021/01/21
+
+Dyllon Gagnier, @slaymaker1907, 2021/01/24
+
+J. Wilhelm, @jeremyredhead, 2021/01/27
+
+Quentin Minster, @laomaiweng, 2021/03/10
+
+Cindy Ruan, @cdruan, 2021/03/18
+
+Urban Alič, @ualich, 2021/05/06
+
+Joe Bordes, @joebordes, 2021/05/30
+
+Frank Bruns-Ballhausen, @FBB-de, 2021/06/09
+
+Álvaro González Rincón, @Alzacon, 2021/06/10
+
+RJ Skerry-Ryan, @rryan, 2021/07/03
+
+J. Song, @8d1h, 2021/08/05
+
+Soren Bjornstad, @sobjornstad, 2021/08/18
+
+Maurycy Zarzycki, @evidentlycube, 2021-10-01
+
+Brian Theado, @btheado, 2021-10-10
+
+@Telumire, 2021-10-18
