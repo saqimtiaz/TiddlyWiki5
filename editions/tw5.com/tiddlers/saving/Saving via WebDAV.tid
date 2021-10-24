@@ -4,7 +4,7 @@ created: 20160216191710789
 delivery: Protocol
 description: Standard web protocol available on products such as Sharepoint
 method: save
-modified: 20210830210442369
+modified: 20211024081526566
 tags: Android Chrome Firefox [[Internet Explorer]] Linux Mac Opera PHP Safari Saving Windows iOS Edge
 title: Saving via WebDAV
 type: text/vnd.tiddlywiki
@@ -39,7 +39,7 @@ Lightweight, portable and easy to use solutions
 
 !! OSX
 *   ~WebDavNav Server via the Mac App store.
-
+xyz
 !! Android
 
 * RCX is an open source file manager for Android based on //rclone//. It is available on both //F-Droid// and //Google Play//. Thanks to its integrated WebDAV server, it lets you edit the wikis that you keep in your pocket. You can share them with other devices on the local network too.
