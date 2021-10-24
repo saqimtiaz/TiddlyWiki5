@@ -1,5 +1,5 @@
 created: 20201123113532200
-modified: 20210805083352068
+modified: 20211024082914161
 tags: Widgets
 title: EventCatcherWidget
 type: text/vnd.tiddlywiki
@@ -11,12 +11,6 @@ type: text/vnd.tiddlywiki
 //This is an advanced widget intended for use by those familiar with HTML, CSS and JavaScript handling of DOM events.//
 
 The event catcher widget traps DOM-initiated Javascript events dispatched within its child content, and allows invoking a series of ActionWidgets in response to those events. 
-
-In order for the events to be trapped they must:
-
-* be of one of the events specified in the event catcher widget's `events` attribute
-* arise within a DOM node specified by the widget's `selector` attribute
-* support event bubbling
 
 Use of the event catcher widget is beneficial when using large numbers of other trigger widgets such as the ButtonWidget is causing performance problems. The workflow it enables is akin to what is referred to as "event delegation" in JavaScript parlance.
 
