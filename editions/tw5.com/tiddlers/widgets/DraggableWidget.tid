@@ -1,15 +1,11 @@
 caption: draggable
 created: 20170406081938627
-modified: 20210912141544224
+modified: 20211029181725353
 tags: Widgets
 title: DraggableWidget
 type: text/vnd.tiddlywiki
 
 The DraggableWidget creates a DOM element that can be dragged by the user. It only works on browsers that support drag and drop, which typically means desktop browsers, but [[there are workarounds|Mobile Drag And Drop Shim Plugin]].
-
-The draggable element can be assigned a list of tiddlers that are used as the payload.
-If desired it can invoke actions when dragging starts and when it ends.
-See DragAndDropMechanism for an overview.
 
 ! Content and Attributes
 
