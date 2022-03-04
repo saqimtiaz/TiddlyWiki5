@@ -5,7 +5,7 @@ created: 20220223153410510
 delivery: Service
 description: Batch script for saving downloaded TiddlyWiki files.
 method: save
-modified: 20220223160414274
+modified: 20220304154035441
 tags: Chrome Firefox [[Internet Explorer]] Linux Mac Opera Safari Saving Windows Edge
 title: Saving with Polly
 type: text/vnd.tiddlywiki
@@ -24,6 +24,5 @@ Effectively, this becomes a new way to save your files, but with these features:
 * Backups as regular file and/or zip to specified directories
 * The ability to "parrot" extra copies to target directories (e.g. a Dropbox folder)
 
-It should be able to run anywhere that //~PowerShell// runs, including Windows, Linux, and Mac.
 
 https://github.com/Marxsal/polly
