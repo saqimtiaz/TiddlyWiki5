@@ -105,8 +105,8 @@ exports.makeDraggable = function(options) {
 				dataTransfer.setData("URL","data:text/vnd.tiddler," + encodeURIComponent(jsonData)); 
 				if(!$tw.browser.isIE) {
 					dataTransfer.setData("text/vnd.tiddler",jsonData);
-					dataTransfer.setData("text/plain",titleString);
 					dataTransfer.setData("text/x-moz-url","data:text/vnd.tiddler," + encodeURIComponent(jsonData));
+					dataTransfer.setData("text/plain",titleString);
 				}
 				dataTransfer.setData("Text",titleString);
 				event.stopPropagation();
