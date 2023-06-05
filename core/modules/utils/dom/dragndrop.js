@@ -102,12 +102,11 @@ exports.makeDraggable = function(options) {
 					jsonData = options.widget.wiki.getTiddlerAsJson(titles[0]);
 				}
 				// IE doesn't like these content types
+				dataTransfer.setData("URL","data:text/vnd.tiddler," + encodeURIComponent(jsonData));
 				if(!$tw.browser.isIE) {
 					dataTransfer.setData("text/vnd.tiddler",jsonData);
 					dataTransfer.setData("text/plain",titleString);
 					dataTransfer.setData("text/x-moz-url","data:text/vnd.tiddler," + encodeURIComponent(jsonData));
-				} else {
-					dataTransfer.setData("URL","data:text/vnd.tiddler," + encodeURIComponent(jsonData));
 				}
 				dataTransfer.setData("Text",titleString);
 				event.stopPropagation();
