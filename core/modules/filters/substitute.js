@@ -16,23 +16,22 @@ Filter operator for substituting variables and embedded filter expressions with 
 Export our filter function
 */
 exports.substitute = function(source,operator,options) {
-	var results = [];
+	var results = [],
+		operands = Object.create(null);
+	$tw.utils.each(operator.operands,function(operand,index){
+		operands[(index + 1).toString()] = operand;
+	});
+
 	function substitute(str) {
-		var output = str.replace(/\$\{([\S\s]+?)\}\$/g, function(match,filter) {
-			return options.wiki.filterTiddlers(filter,options.widget)[0] || "";
-		})   //check macro substitutions to see if returned values get processed even further
-		.replace(/\$\((\w+)\)\$/g, function(match,varname) {
-			return options.widget.getVariable(varname,{defaultValue: ""})
-		})
-		.replace(/\$(\d)\$/g, function(match,operandIndex) {  //assign operands as variables !!!
-			var index = $tw.utils.parseInt(operandIndex) - 1;
-			if(operator.operands[index]) {     
-				return operator.operands[index];
-			} else {
-				return "";
+		var widget = options.widget.makeFakeWidgetWithVariables(operands);
+		var output = str.replace(/(?:\$\{([\S\s]+?)\}\$)|(?:\$\((\w+)\)\$)/g, function(match,filter,varname) {
+			if(!!filter) {
+				return options.wiki.filterTiddlers(filter,options.widget)[0] || "";
+			} else if(!!varname) {
+				return widget.getVariable(varname,{defaultValue: ""})
 			}
-		});
-		return(output);
+		})
+		return output;
 	}
 	
 	source(function(tiddler,title) {
@@ -44,3 +43,9 @@ exports.substitute = function(source,operator,options) {
 };
 
 })();
+
+/*
+Questions:
+	variable names for operands, just numeric or prefix with parameter, eg parameter1
+
+*/

@@ -7,11 +7,13 @@ title: Output
 
 \whitespace trim
 <$let project="TiddlyWiki">
-<div class=`$(project)$ ${ [[Hello]addsuffix[There]] }$`>
+<div class=`$(project)$ 
+${ [[Hello]addsuffix[There]] }$`>
 </div>
 </$let>
 
 +
 title: ExpectedResult
 
-<p><div class="TiddlyWiki HelloThere"></div></p>
+<p><div class="TiddlyWiki 
+HelloThere"></div></p>
