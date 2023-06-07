@@ -413,6 +413,9 @@ Widget.prototype.computeAttribute = function(attribute) {
 		} else {
 			value = variableInfo.text;
 		}
+	} else if(attribute.type === "substituted") {
+		//value = this.wiki.getSubstitutedString(attribute.rawValue,this);
+		value = this.wiki.filterTiddlers("[all[]substitute[]]",this,this.wiki.makeTiddlerIterator([attribute.rawValue]));
 	} else { // String attribute
 		value = attribute.value;
 	}
