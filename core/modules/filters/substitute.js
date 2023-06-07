@@ -21,22 +21,9 @@ exports.substitute = function(source,operator,options) {
 	$tw.utils.each(operator.operands,function(operand,index){
 		operands[(index + 1).toString()] = operand;
 	});
-
-	function substitute(str) {
-		var widget = options.widget.makeFakeWidgetWithVariables(operands);
-		var output = str.replace(/(?:\$\{([\S\s]+?)\}\$)|(?:\$\((\w+)\)\$)/g, function(match,filter,varname) {
-			if(!!filter) {
-				return options.wiki.filterTiddlers(filter,options.widget)[0] || "";
-			} else if(!!varname) {
-				return widget.getVariable(varname,{defaultValue: ""})
-			}
-		})
-		return output;
-	}
-	
 	source(function(tiddler,title) {
 		if(title) {
-			results.push(substitute(title));
+			results.push(options.widget.getSubstitutedText(title,{variables:operands}));
 		}
 	});
 	return results;
