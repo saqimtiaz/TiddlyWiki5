@@ -31,7 +31,7 @@ GitHubSaver.prototype.save = function(text,method,callback) {
 		headers = {
 			"Accept": "application/vnd.github.v3+json",
 			"Content-Type": "application/json;charset=UTF-8",
-			"Authorization": "Basic " + window.btoa(username + ":" + password),
+			"Authorization": "Basic " + $tw.utils.base64Encode(username + ":" + password),
 			"If-None-Match": ""
 		};
 	// Bail if we don't have everything we need
@@ -61,7 +61,7 @@ GitHubSaver.prototype.save = function(text,method,callback) {
 				return callback(err);
 			}
 			if(xhr.status !== 404) {
-				getResponseData = JSON.parse(getResponseDataJson);
+				getResponseData = $tw.utils.parseJSONSafe(getResponseDataJson);
 				$tw.utils.each(getResponseData,function(details) {
 					if(details.name === filename) {
 						sha = details.sha;
@@ -84,7 +84,7 @@ GitHubSaver.prototype.save = function(text,method,callback) {
 					if(err) {
 						return callback(err);
 					}
-					var putResponseData = JSON.parse(putResponseDataJson);
+					var putResponseData = $tw.utils.parseJSONSafe(putResponseDataJson);
 					callback(null);
 				}
 			});

@@ -40,6 +40,10 @@ RadioWidget.prototype.render = function(parent,nextSibling) {
 	);
 	this.inputDomNode = this.document.createElement("input");
 	this.inputDomNode.setAttribute("type","radio");
+	this.assignAttributes(this.inputDomNode,{
+		sourcePrefix: "data-",
+		destPrefix: "data-"
+	});
 	if(isChecked) {
 		this.inputDomNode.checked = true;
 	}
@@ -64,9 +68,9 @@ RadioWidget.prototype.getValue = function() {
 		tiddler = this.wiki.getTiddler(this.radioTitle);
 	if(tiddler) {
 		if(this.radioIndex) {
-			value = this.wiki.extractTiddlerDataItem(this.radioTitle,this.radioIndex);
+			value = this.wiki.extractTiddlerDataItem(this.radioTitle,this.radioIndex,this.radioDefault);
 		} else {
-			value = tiddler.getFieldString(this.radioField);
+			value = tiddler.getFieldString(this.radioField,this.radioDefault);
 		}
 	} else {
 		value = this.radioDefault;

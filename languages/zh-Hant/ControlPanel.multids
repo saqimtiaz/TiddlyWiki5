@@ -7,7 +7,7 @@ Appearance/Hint: 自訂您的 TiddlyWiki 外觀。
 Basics/AnimDuration/Prompt: 動畫持續時間
 Basics/AutoFocus/Prompt: 編輯條目時的預設自動停留欄位
 Basics/Caption: 基本
-Basics/DefaultTiddlers/BottomHint: 標題含空白時請使用 &#91;&#91;雙中括弧&#93;&#93;，或者您可用 <$button set="$:/DefaultTiddlers" setTo="[list[$:/StoryList]]">保留開啟中的條目順序</$button>
+Basics/DefaultTiddlers/BottomHint: 標題含空白時請使用 &#91;&#91;雙中括弧&#93;&#93;，或者您可用 {{保留開啟中的條目順序||$:/snippets/retain-story-ordering-button}}
 Basics/DefaultTiddlers/Prompt: 首頁
 Basics/DefaultTiddlers/TopHint: 預設開啟的條目
 Basics/Language/Prompt: 您好！當前的語言：
@@ -24,7 +24,7 @@ Basics/Subtitle/Prompt: 副標題
 Basics/SystemTiddlers/Prompt: 系統條目數量
 Basics/Tags/Prompt: 標籤數量
 Basics/Tiddlers/Prompt: 一般條目數量
-Basics/Title/Prompt: 標題
+Basics/Title/Prompt: 此 ~TiddlyWiki 的標題
 Basics/Username/Prompt: 編輯者署名
 Basics/Version/Prompt: ~TiddlyWiki 版本
 Cascades/Caption: 級聯
@@ -36,6 +36,8 @@ EditorTypes/Hint: 這些條目決定使用哪個編輯器來編輯特定條目�
 EditorTypes/Type/Caption: 類型
 EditTemplateBody/Caption: 編輯範本主體
 EditTemplateBody/Hint: 預設的編輯範本使用此規則級聯，動態選擇範本來編輯條目的主體。
+FieldEditor/Caption: 欄位編輯器
+FieldEditor/Hint: 此規則級聯用於根據名稱，動態選擇用於呈現一個條目欄位的範本。其用於編輯範本中。
 Info/Caption: 資訊
 Info/Hint: 有關此 TiddlyWiki 的資訊
 KeyboardShortcuts/Add/Prompt: 在此輸入快捷鍵

@@ -7,7 +7,7 @@ Appearance/Hint: Ways to customise the appearance of your TiddlyWiki.
 Basics/AnimDuration/Prompt: Animation duration
 Basics/AutoFocus/Prompt: Default focus field for new tiddlers
 Basics/Caption: Basics
-Basics/DefaultTiddlers/BottomHint: Use &#91;&#91;double square brackets&#93;&#93; for titles with spaces. Or you can choose to <$button set="$:/DefaultTiddlers" setTo="[list[$:/StoryList]]">retain story ordering</$button>
+Basics/DefaultTiddlers/BottomHint: Use &#91;&#91;double square brackets&#93;&#93; for titles with spaces. Or you can choose to {{retain story ordering||$:/snippets/retain-story-ordering-button}}
 Basics/DefaultTiddlers/Prompt: Default tiddlers
 Basics/DefaultTiddlers/TopHint: Choose which tiddlers are displayed at startup
 Basics/Language/Prompt: Hello! Current language:
@@ -36,6 +36,8 @@ EditorTypes/Hint: These tiddlers determine which editor is used to edit specific
 EditorTypes/Type/Caption: Type
 EditTemplateBody/Caption: Edit Template Body
 EditTemplateBody/Hint: This rule cascade is used by the default edit template to dynamically choose the template for editing the body of a tiddler.
+FieldEditor/Caption: Field Editor
+FieldEditor/Hint: This rules cascade is used to dynamically choose the template for rendering a tiddler field based on its name. It is used within the Edit Template.
 Info/Caption: Info
 Info/Hint: Information about this TiddlyWiki
 KeyboardShortcuts/Add/Prompt: Type shortcut here
@@ -88,8 +90,8 @@ Plugins/Languages/Caption: Languages
 Plugins/Languages/Hint: Language pack plugins
 Plugins/NoInfoFound/Hint: No ''"<$text text=<<currentTab>>/>"'' found
 Plugins/NotInstalled/Hint: This plugin is not currently installed
-Plugins/OpenPluginLibrary: open plugin library
-Plugins/ClosePluginLibrary: close plugin library
+Plugins/OpenPluginLibrary: Open plugin library
+Plugins/ClosePluginLibrary: Close plugin library
 Plugins/PluginWillRequireReload: (requires reload)
 Plugins/Plugins/Caption: Plugins
 Plugins/Plugins/Hint: Plugins
