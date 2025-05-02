@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Validate PR
-      uses: saqimtiaz/cerebrus@3a8957a3990a603ca130a09fdbdb4c17be6b5536
+      uses: saqimtiaz/cerebrus@main
       with:
         pr_number: ${{ github.event.pull_request.number }}
         repo: ${{ github.repository }}
