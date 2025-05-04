@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Build and check size
-      uses: TiddlyWiki/cerebrus@v3
+      uses: TiddlyWiki/cerebrus@main
       with:
         pr_number: ${{ github.event.client_payload.pr_number }}
         repo: ${{ github.repository }}
