@@ -1,7 +1,7 @@
 name: Comment on PR build size (Trusted workflow)
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       pr_number:
         required: true
