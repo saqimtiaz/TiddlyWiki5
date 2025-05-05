@@ -36,7 +36,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          await github.actions.createWorkflowDispatch({
+          await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'pr-comment-build-size.yml',
