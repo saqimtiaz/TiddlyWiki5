@@ -39,76 +39,202 @@ EventWidget.prototype.render = function(parent,nextSibling) {
 	this.domNode = domNode;
 	// Assign classes
 	this.assignDomNodeClasses();
-	// Add our event handler
-	$tw.utils.each(this.types,function(type) {
-		domNode.addEventListener(type,function(event) {
-			var selector = self.getAttribute("selector"),
-				matchSelector = self.getAttribute("matchSelector"),
-				actions = self.getAttribute("$"+type) || self.getAttribute("actions-"+type),
-				stopPropagation = self.getAttribute("stopPropagation","onaction"),
-				selectedNode = event.target,
-				selectedNodeRect,
-				catcherNodeRect,
-				variables = {};
-			// Firefox can fire dragover and dragenter events on text nodes instead of their parents
-			if(selectedNode.nodeType === 3) {
-				selectedNode = selectedNode.parentNode;
-			}
-			// Check that the selected node matches any matchSelector
-			if(matchSelector && !$tw.utils.domMatchesSelector(selectedNode,matchSelector)) {
-				return false;
-			}
-			if(selector) {
-				// Search ancestors for a node that matches the selector
-				while(!$tw.utils.domMatchesSelector(selectedNode,selector) && selectedNode !== domNode) {
-					selectedNode = selectedNode.parentNode;
-				}
-				// Exit if we didn't find one
-				if(selectedNode === domNode) {
-					return false;
-				}
-				// Only set up variables if we have actions to invoke
-				if(actions) {
-					variables = $tw.utils.collectDOMVariables(selectedNode,self.domNode,event);
-				}
-			}
-			// Execute our actions with the variables
-			if(actions) {
-				// Add a variable for the modifier key
-				variables.modifier = $tw.keyboardManager.getEventModifierKeyDescriptor(event);
-				// Add a variable for the mouse button
-				if("button" in event) {
-					if(event.button === 0) {
-						variables["event-mousebutton"] = "left";
-					} else if(event.button === 1) {
-						variables["event-mousebutton"] = "middle";
-					} else if(event.button === 2) {
-						variables["event-mousebutton"] = "right";
-					}
-				}
-				variables["event-type"] = event.type.toString();
-				if(typeof event.detail === "object" && !!event.detail) {
-					$tw.utils.each(event.detail,function(detailValue,detail) {
-						variables["event-detail-" + detail] = detailValue.toString();
-					});
-				} else if(!!event.detail) {
-					variables["event-detail"] = event.detail.toString();
-				}
-				self.invokeActionString(actions,self,event,variables);
-			}
-			if((actions && stopPropagation === "onaction") || stopPropagation === "always") {
-				event.preventDefault();
-				event.stopPropagation();
-				return true;
-			}
-			return false;
-		},false);
-	});
+	// Add our event handlers
+	this.toggleListeners();
 	// Insert element
 	parent.insertBefore(domNode,nextSibling);
 	this.renderChildren(domNode,null);
 	this.domNodes.push(domNode);
 };
+
+//TODO: call this from destroy
+EventWidget.prototype.removeListeners = function() {
+	// Release any pointer capture
+	this._stopCapture(this._lastPointerId);
+	// Helper: remove all listeners from a map
+	const removeMapListeners = (map) => {
+		Object.keys(map || {}).forEach((type) => {
+			this.domNode.removeEventListener(type, map[type], false);
+		});
+	};
+	// Remove static, dynamic starter, and active capture listeners
+	removeMapListeners(this._eventListeners);
+	if(this._dynamicPointerdownListener) {
+		this.domNode.removeEventListener("pointerdown",this._dynamicPointerdownListener,false);
+ 	}
+	removeMapListeners(this._captureActiveListeners);
+
+	this._captureActiveListeners = Object.create(null);
+};
+
+EventWidget.prototype._startCapture = function(pointerId) {
+	if(!this._lastPointerId && this.domNode && this.domNode.setPointerCapture) {
+		this.domNode.setPointerCapture(pointerId);
+		this._lastPointerId = pointerId;
+	}
+};
+
+EventWidget.prototype._stopCapture = function(pointerId) {
+	if(this.domNode && this.domNode.hasPointerCapture && this.domNode.hasPointerCapture(pointerId)) {
+		this.domNode.releasePointerCapture(pointerId);
+		this._lastPointerId = null;
+		return true;
+	}
+	return false;
+};
+
+EventWidget.prototype._makeListener = function(type) {
+	const self = this;
+	return function(event) {
+		let selector = self.getAttribute("selector"),
+			matchSelector = self.getAttribute("matchSelector"),
+			actions = self.getAttribute("$" + type) || self.getAttribute("actions-" + type),
+			stopPropagation = self.getAttribute("stopPropagation", "onaction"),
+			selectedNode = event.target,
+			variables = {};
+
+		// Normalize text nodes
+		if(selectedNode.nodeType === 3) {
+			selectedNode = selectedNode.parentNode;
+		}
+		// Match matchSelector first
+		if(matchSelector && !$tw.utils.domMatchesSelector(selectedNode, matchSelector)) {
+			return false;
+		}
+		// Match selector chain
+		if(selector) {
+			while(!$tw.utils.domMatchesSelector(selectedNode, selector) && selectedNode !== domNode) {
+				selectedNode = selectedNode.parentNode;
+			}
+			if(selectedNode === domNode) {
+				return false;
+			}
+			if(actions) {
+				variables = $tw.utils.collectDOMVariables(selectedNode, self.domNode, event);
+			}
+		}
+		// Execute actions if defined
+		if(actions) {
+			variables.modifier = $tw.keyboardManager.getEventModifierKeyDescriptor(event);
+			const mouseButtonMap = {0: "left", 1: "middle", 2: "right"};
+			variables["event-mousebutton"] = "button" in event ? mouseButtonMap[event.button] : undefined;
+			variables["event-type"] = event.type.toString();
+			if(typeof event.detail === "object" && !!event.detail) {
+				$tw.utils.each(event.detail, (detailValue, detail) => {
+					variables["event-detail-" + detail] = detailValue.toString();
+				});
+			} else if(!!event.detail) {
+				variables["event-detail"] = event.detail.toString();
+			}
+			self.invokeActionString(actions, self, event, variables);
+		}
+		if((actions && stopPropagation === "onaction") || stopPropagation === "always") {
+			event.preventDefault();
+			event.stopPropagation();
+			return true;
+		}
+		return false;
+	};
+};
+
+EventWidget.prototype._cleanupDynamicListeners = function() {
+	const domNode = this.domNode;
+	Object.keys(this._captureActiveListeners).forEach(type => {
+		domNode.removeEventListener(type, this._captureActiveListeners[type], false);
+	});
+	this._captureActiveListeners = Object.create(null);
+};
+
+EventWidget.prototype._makePointerCaptureStarter = function() {
+	const self = this;
+	return function(event) {
+		self._startCapture(event);
+		// Build active listeners for pointerup/cancel/move
+		['pointerup', 'pointercancel'].forEach(type => {
+			self._captureActiveListeners[type] = ev => {
+				self._stopCapture(ev.pointerId);
+				self._cleanupDynamicListeners();
+				const listener = self._eventListeners[type];
+				if(listener) {
+					listener(ev);
+				}
+			};
+		});
+		if(self.types.includes("pointermove")) {
+			self._captureActiveListeners.pointermove = self._eventListeners.pointermove;
+		}
+		// Attach active listeners
+		Object.keys(self._captureActiveListeners).forEach(type => {
+			self.domNode.addEventListener(type, self._captureActiveListeners[type], false);
+		});
+		// Run pointerdown actions
+		if('pointerdown' in self._eventListeners) {
+			self._eventListeners.pointerdown(event);
+		}
+	};
+};
+
+
+EventWidget.prototype.attachListeners = function() {
+	const domNode = this.domNode,
+		self = this,
+		usePointerCapture = this.getAttribute("usePointerCapture", "yes") === "yes",
+		dynamicPointerListeners = this.getAttribute("dynamicPointerListeners", "yes") === "yes";
+
+	this._eventListeners = this._eventListeners || Object.create(null);
+	this._captureActiveListeners = this._captureActiveListeners || Object.create(null);
+	this._dynamicPointerdownListener = this._dynamicPointerdownListener || null;
+
+	this.removeListeners();
+
+	if(dynamicPointerListeners && usePointerCapture) {
+		this.events.forEach(type => {
+			if(!(type in self._eventListeners)) {
+				self._eventListeners[type] = self._makeListener(type);
+			}
+		});
+		if(!this._dynamicPointerdownListener) {
+			this._dynamicPointerdownListener = this._makePointerCaptureStarter();
+		}
+		domNode.addEventListener("pointerdown", this._dynamicPointerdownListener, false);
+
+		// Attach non-pointer events
+		$tw.utils.each(this.types, type => {
+			if(!type.startsWith("pointer")) {
+				domNode.addEventListener(type, self._eventListeners[type], false);
+			}
+		});
+	} else {
+		// Attach all events, wrapping pointerevents if needed
+		this.types.forEach( type => {
+			if(!self._eventListeners[type]) {
+				self._eventListeners[type] = event => {
+					if(usePointerCapture) {
+						if (type === "pointerdown") {
+							self._startCapture(event);
+						} else if(type === "pointerup" || type === "pointercancel") {
+							self._makeListener(type)(event);
+							self._stopCapture(event);
+							return;
+						}
+					}
+					self._makeListener(type)(event);
+				};
+			}
+			domNode.addEventListener(type, self._eventListeners[type], false);
+		});
+	}
+};
+
+
+EventWidget.prototype.toggleListeners = function() {
+	let disabled = this.getAttribute("disabled","no") === "yes";
+	if(disabled) {
+		this.removeListeners();
+	} else {
+		this.attachListeners();
+	}		
+}
 
 /*
 Compute the internal state of the widget
@@ -136,19 +262,29 @@ EventWidget.prototype.assignDomNodeClasses = function() {
 	this.domNode.className = classes.join(" ");
 };
 
-/*
-Selectively refreshes the widget if needed. Returns true if the widget or any of its children needed re-rendering
-*/
 EventWidget.prototype.refresh = function(changedTiddlers) {
-	var changedAttributes = this.computeAttributes(),
-		changedAttributesCount = $tw.utils.count(changedAttributes);
-	if(changedAttributesCount === 1 && changedAttributes["class"]) {
-		this.assignDomNodeClasses();
-	} else if(changedAttributesCount > 0) {
-		this.refreshSelf();
-		return true;
+	let changedAttributes = this.computeAttributes(),
+		changedKeys = Object.keys(changedAttributes);
+
+	if(changedKeys.length === 0) {
+		return this.refreshChildren(changedTiddlers);
 	}
-	return this.refreshChildren(changedTiddlers);
+	// If only class or disabled attributes have changed, we can update the DOM node without a full refresh
+	let canUpateAttributes = changedKeys.every(function(key) {
+		return key === "class" || key === "disabled";
+	});
+	if(canUpateAttributes) {
+		if(changedAttributes["class"]) {
+			this.assignDomNodeClasses();
+		}
+		if(changedAttributes["disabled"]) {
+			this.toggleListeners();
+		}
+		return false;
+	}
+
+	this.refreshSelf();
+	return true;
 };
 
 exports.eventcatcher = EventWidget;
