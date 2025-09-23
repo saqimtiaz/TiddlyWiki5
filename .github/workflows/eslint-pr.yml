@@ -66,9 +66,6 @@ jobs:
               plugins: { es, esx },
               rules: {
                 // ES syntax restrictions
-                "es/no-bigint": "error",
-                "es/no-optional-chaining": "error",
-                "es/no-nullish-coalescing": "error",
                 "esx/no-new-in-es2018": "error",
                 "esx/no-new-in-es2019": "error",
                 "esx/no-new-in-es2020": "error",
