@@ -4,8 +4,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read       # Needed to checkout code and get diffs
-  pull-requests: write # Needed for Reviewdog to post PR comments
+  contents: read       # Needed to checkout code and compute diffs
 
 jobs:
   lint-es2017:
@@ -44,12 +43,10 @@ jobs:
             globals: require("globals").es2017
           };' > .eslintrc.js
 
-      # 5. Run ESLint and filter to PR changes using Reviewdog
+      # 5. Run ESLint and report changes only
       - name: Lint changed lines in PR
         run: |
           npx eslint . -f unix | npx reviewdog \
             -f=eslint \
             -reporter=github-pr-check \
             -filter-mode=diff_context
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
