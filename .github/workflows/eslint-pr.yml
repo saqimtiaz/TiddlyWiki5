@@ -1,0 +1,154 @@
+name: eslint-pr
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install --no-save \
+            eslint@^9 \
+            @eslint/js \
+            eslint-plugin-es \
+            globals
+
+      - name: Write eslint.config.js
+        run: |
+          cat > eslint.config.js <<'EOF'
+          // Flat config for ESLint v9
+          import js from "@eslint/js";
+          import globals from "globals";
+
+          export default [
+            {
+              ignores: [
+                "boot/sjcl.js",
+                "core/modules/utils/base64-utf8/base64-utf8.module.js",
+                "core/modules/utils/base64-utf8/base64-utf8.module.min.js",
+                "core/modules/utils/diff-match-patch/diff_match_patch.js",
+                "core/modules/utils/diff-match-patch/diff_match_patch_uncompressed.js",
+                "core/modules/utils/dom/csscolorparser.js",
+                "plugins/tiddlywiki/*/files/",
+                "eslint.config.js",
+                "playwright.config.js",
+              ],
+            },
+            js.configs.recommended,
+            {
+              languageOptions: {
+                ecmaVersion: 2017, // restrict to ES2017
+                sourceType: "commonjs",
+                globals: {
+                  ...globals.browser,
+                  ...globals.commonjs,
+                  ...globals.node,
+                  $tw: "writable",
+                },
+              },
+              plugins: {
+                es: require("eslint-plugin-es"),
+              },
+              rules: {
+                // Forbid ES2018+ syntax and built-ins
+                "es/no-bigint": "error",
+                "es/no-optional-chaining": "error",
+                "es/no-nullish-coalescing": "error",
+                "es/no-promise-all-settled": "error",
+                "es/no-new-in-es2018": "error",
+                "es/no-new-in-es2019": "error",
+                "es/no-new-in-es2020": "error",
+                "es/no-new-in-es2021": "error",
+                "es/no-new-in-es2022": "error",
+                "es/no-new-in-es2023": "error",
+
+                // Your style + lint rules
+                "arrow-body-style": "error",
+                "arrow-parens": ["error", "as-needed"],
+                "arrow-spacing": ["error", { after: true, before: true }],
+                "class-methods-use-this": "error",
+                "default-case-last": "error",
+                "default-param-last": "error",
+                "generator-star-spacing": "error",
+                "grouped-accessor-pairs": "error",
+                "id-blacklist": "error",
+                "id-denylist": "error",
+                "id-match": "error",
+                "implicit-arrow-linebreak": "error",
+                "jsx-quotes": "error",
+                "keyword-spacing": ["error", {
+                  before: true,
+                  after: false,
+                  overrides: { case: { after: true }, do: { after: true }, else: { after: true }, return: { after: true }, throw: { after: true }, try: { after: true } }
+                }],
+                "lines-between-class-members": "error",
+                "max-classes-per-file": "error",
+                "max-nested-callbacks": "error",
+                "no-await-in-loop": "error",
+                "no-caller": "error",
+                "no-confusing-arrow": "error",
+                "no-constant-condition": ["error", { checkLoops: false }],
+                "no-constructor-return": "error",
+                "no-duplicate-imports": "error",
+                "no-empty-function": "off",
+                "no-eval": "off",
+                "no-iterator": "error",
+                "no-loss-of-precision": "error",
+                "no-multi-str": "error",
+                "no-negated-in-lhs": "error",
+                "no-new-require": "error",
+                "no-new-wrappers": "error",
+                "no-octal-escape": "error",
+                "no-path-concat": "error",
+                "no-promise-executor-return": "error",
+                "no-restricted-globals": ["error", "self"],
+                "no-return-await": "off",
+                "no-unreachable-loop": "error",
+                "no-useless-computed-key": "error",
+                "no-useless-constructor": "error",
+                "no-useless-rename": "error",
+                "no-warning-comments": "off",
+                "no-whitespace-before-property": "error",
+                "prefer-numeric-literals": "error",
+                "prefer-promise-reject-errors": "error",
+                "quotes": ["error", "double", { avoidEscape: true }],
+                "require-atomic-updates": "error",
+                "require-await": "error",
+                "rest-spread-spacing": "error",
+                "sort-imports": "error",
+                "symbol-description": "error",
+                "template-curly-spacing": "error",
+                "template-tag-spacing": "error",
+                "unicode-bom": ["error", "never"],
+                "valid-typeof": ["error", { requireStringLiterals: false }],
+                "yield-star-spacing": "error",
+              },
+            },
+          ];
+          EOF
+
+      - name: Setup Reviewdog
+        uses: reviewdog/action-setup@v1
+
+      - name: Run ESLint with Reviewdog
+        run: |
+          npx eslint . -f json | reviewdog \
+            -f=eslint \
+            -reporter=github-pr-check \
+            -filter-mode=diff_context
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
