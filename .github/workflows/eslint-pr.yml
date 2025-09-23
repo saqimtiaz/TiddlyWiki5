@@ -23,7 +23,6 @@ jobs:
         run: |
           npm install --no-save \
             eslint@^9 \
-            @eslint/js \
             eslint-plugin-es \
             eslint-plugin-es-x \
             globals
@@ -32,10 +31,16 @@ jobs:
         run: |
           rm eslint.config.*
           cat > eslint.config.cjs <<'EOF'
-          const js = require("@eslint/js");
           const globals = require("globals");
-          const es = require("eslint-plugin-es");
           const esx = require("eslint-plugin-es-x");
+          const { FlatCompat } = require("@eslint/eslintrc");
+          const js = require("@eslint/js");
+
+          const compat = new FlatCompat({
+            baseDirectory: __dirname,
+            recommendedConfig: js.configs.recommended,
+            allConfig: js.configs.all
+          });
 
           module.exports = [
             {
@@ -51,10 +56,10 @@ jobs:
                 "playwright.config.js",
               ],
             },
-            js.configs.recommended,
+            ...compat.extends("eslint:recommended"),
             {
               languageOptions: {
-                ecmaVersion: 2017, // restrict to ES2017
+                ecmaVersion: 2017,
                 sourceType: "commonjs",
                 globals: {
                   ...globals.browser,
@@ -63,72 +68,20 @@ jobs:
                   $tw: "writable",
                 },
               },
-              plugins: { es, esx },
-              rules: {
-                // ES syntax restrictions
-                "esx/no-new-in-es2018": "error",
-                "esx/no-new-in-es2019": "error",
-                "esx/no-new-in-es2020": "error",
-                "esx/no-new-in-es2021": "error",
-                "esx/no-new-in-es2022": "error",
-                "esx/no-new-in-es2023": "error",
+              plugins: {
 
-                // Your existing style + lint rules
-                "arrow-body-style": "error",
-                "arrow-parens": ["error", "as-needed"],
-                "arrow-spacing": ["error", { after: true, before: true }],
-                "class-methods-use-this": "error",
-                "default-case-last": "error",
-                "default-param-last": "error",
-                "generator-star-spacing": "error",
-                "grouped-accessor-pairs": "error",
-                "id-blacklist": "error",
-                "id-denylist": "error",
-                "id-match": "error",
-                "implicit-arrow-linebreak": "error",
-                "jsx-quotes": "error",
-                "keyword-spacing": ["error", { before: true, after: false,
-                  overrides: { case: { after: true }, do: { after: true }, else: { after: true }, return: { after: true }, throw: { after: true }, try: { after: true } }
-                }],
-                "lines-between-class-members": "error",
-                "max-classes-per-file": "error",
-                "max-nested-callbacks": "error",
-                "no-await-in-loop": "error",
-                "no-caller": "error",
-                "no-confusing-arrow": "error",
-                "no-constant-condition": ["error", { checkLoops: false }],
-                "no-constructor-return": "error",
-                "no-duplicate-imports": "error",
-                "no-iterator": "error",
-                "no-loss-of-precision": "error",
-                "no-multi-str": "error",
-                "no-negated-in-lhs": "error",
-                "no-new-require": "error",
-                "no-new-wrappers": "error",
-                "no-octal-escape": "error",
-                "no-path-concat": "error",
-                "no-promise-executor-return": "error",
-                "no-restricted-globals": ["error", "self"],
-                "no-unreachable-loop": "error",
-                "no-useless-computed-key": "error",
-                "no-useless-constructor": "error",
-                "no-useless-rename": "error",
-                "no-whitespace-before-property": "error",
-                "prefer-numeric-literals": "error",
-                "prefer-promise-reject-errors": "error",
-                "quotes": ["error", "double", { avoidEscape: true }],
-                "require-atomic-updates": "error",
-                "require-await": "error",
-                "rest-spread-spacing": "error",
-                "sort-imports": "error",
-                "symbol-description": "error",
-                "template-curly-spacing": "error",
-                "template-tag-spacing": "error",
-                "unicode-bom": ["error", "never"],
-                "valid-typeof": ["error", { requireStringLiterals: false }],
-                "yield-star-spacing": "error",
-              }
-            }
+              },
+              rules: {
+
+              },
+            },
+            // Add eslint-plugin-es-x bundled flat configs for newer syntax built-ins
+            esx.configs['flat/no-new-in-es2018'],
+            esx.configs['flat/no-new-in-es2019'],
+            esx.configs['flat/no-new-in-es2020'],
+            esx.configs['flat/no-new-in-es2021'],
+            esx.configs['flat/no-new-in-es2022'],
+            esx.configs['flat/no-new-in-es2023-intl-api'],
           ];
           EOF
 
