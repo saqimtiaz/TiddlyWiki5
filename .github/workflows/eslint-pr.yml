@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install ESLint dependencies
+      - name: Install dependencies
         run: |
           npm install --no-save \
             eslint@^9 \
@@ -28,13 +28,14 @@ jobs:
             eslint-plugin-es-x \
             globals
 
-      - name: Write ESLint flat config (CommonJS)
+      - name: Write eslint.config.cjs
         run: |
           rm eslint.config.*
           cat > eslint.config.cjs <<'EOF'
           const js = require("@eslint/js");
-          const esx = require("eslint-plugin-es-x");
           const globals = require("globals");
+          const es = require("eslint-plugin-es");
+          const esx = require("eslint-plugin-es-x");
 
           module.exports = [
             {
@@ -51,10 +52,9 @@ jobs:
               ],
             },
             js.configs.recommended,
-            esx.configs["plugin:es-x/no-new-in-es2018"],
             {
               languageOptions: {
-                ecmaVersion: 2017,
+                ecmaVersion: 2017, // restrict to ES2017
                 sourceType: "commonjs",
                 globals: {
                   ...globals.browser,
@@ -63,8 +63,20 @@ jobs:
                   $tw: "writable",
                 },
               },
+              plugins: { es, esx },
               rules: {
-                // ES2017 style + no ES2018+ features
+                // ES syntax restrictions
+                "es/no-bigint": "error",
+                "es/no-optional-chaining": "error",
+                "es/no-nullish-coalescing": "error",
+                "esx/no-new-in-es2018": "error",
+                "esx/no-new-in-es2019": "error",
+                "esx/no-new-in-es2020": "error",
+                "esx/no-new-in-es2021": "error",
+                "esx/no-new-in-es2022": "error",
+                "esx/no-new-in-es2023": "error",
+
+                // Your existing style + lint rules
                 "arrow-body-style": "error",
                 "arrow-parens": ["error", "as-needed"],
                 "arrow-spacing": ["error", { after: true, before: true }],
@@ -78,6 +90,9 @@ jobs:
                 "id-match": "error",
                 "implicit-arrow-linebreak": "error",
                 "jsx-quotes": "error",
+                "keyword-spacing": ["error", { before: true, after: false,
+                  overrides: { case: { after: true }, do: { after: true }, else: { after: true }, return: { after: true }, throw: { after: true }, try: { after: true } }
+                }],
                 "lines-between-class-members": "error",
                 "max-classes-per-file": "error",
                 "max-nested-callbacks": "error",
@@ -115,8 +130,8 @@ jobs:
                 "unicode-bom": ["error", "never"],
                 "valid-typeof": ["error", { requireStringLiterals: false }],
                 "yield-star-spacing": "error",
-              },
-            },
+              }
+            }
           ];
           EOF
 
