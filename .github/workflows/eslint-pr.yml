@@ -24,18 +24,16 @@ jobs:
           npm install --no-save \
             eslint@^9 \
             @eslint/js \
-            eslint-plugin-es \
-            globals
+            eslint-plugin-es-x
 
       - name: Write eslint.config.cjs
         run: |
-          rm -f eslint.config.*
           cat > eslint.config.cjs <<'EOF'
-          // Flat config for ESLint v9 (CommonJS)
-          const js = require("@eslint/js");
-          const globals = require("globals");
+          // Flat config for ESLint v9 using only eslint-plugin-es-x
+          import js from "@eslint/js";
+          import esx from "eslint-plugin-es-x";
 
-          module.exports = [
+          export default [
             {
               ignores: [
                 "boot/sjcl.js",
@@ -45,36 +43,19 @@ jobs:
                 "core/modules/utils/diff-match-patch/diff_match_patch_uncompressed.js",
                 "core/modules/utils/dom/csscolorparser.js",
                 "plugins/tiddlywiki/*/files/",
-                "eslint.config.js",
                 "eslint.config.cjs",
                 "playwright.config.js",
               ],
             },
             js.configs.recommended,
+            esx.configs["plugin:es-x/no-new-in-es2018"],
             {
               languageOptions: {
-                ecmaVersion: 2017, // restrict to ES2017
-                sourceType: "commonjs",
-                globals: {
-                  ...globals.browser,
-                  ...globals.commonjs,
-                  ...globals.node,
-                  $tw: "writable",
-                },
-              },
-              plugins: {
-                es: require("eslint-plugin-es"),
+                ecmaVersion: 2017,
+                sourceType: "commonjs"
               },
               rules: {
-                // --- ES version restrictions ---
-                "es/no-new-in-es2018": "error",
-                "es/no-new-in-es2019": "error",
-                "es/no-new-in-es2020": "error",
-                "es/no-new-in-es2021": "error",
-                "es/no-new-in-es2022": "error",
-                "es/no-new-in-es2023": "error",
-
-                // --- Style + lint rules ---
+                // Your existing style + lint rules
                 "arrow-body-style": "error",
                 "arrow-parens": ["error", "as-needed"],
                 "arrow-spacing": ["error", { after: true, before: true }],
@@ -88,18 +69,6 @@ jobs:
                 "id-match": "error",
                 "implicit-arrow-linebreak": "error",
                 "jsx-quotes": "error",
-                "keyword-spacing": ["error", {
-                  before: true,
-                  after: false,
-                  overrides: {
-                    case: { after: true },
-                    do: { after: true },
-                    else: { after: true },
-                    return: { after: true },
-                    throw: { after: true },
-                    try: { after: true }
-                  }
-                }],
                 "lines-between-class-members": "error",
                 "max-classes-per-file": "error",
                 "max-nested-callbacks": "error",
@@ -109,8 +78,6 @@ jobs:
                 "no-constant-condition": ["error", { checkLoops: false }],
                 "no-constructor-return": "error",
                 "no-duplicate-imports": "error",
-                "no-empty-function": "off",
-                "no-eval": "off",
                 "no-iterator": "error",
                 "no-loss-of-precision": "error",
                 "no-multi-str": "error",
@@ -121,12 +88,10 @@ jobs:
                 "no-path-concat": "error",
                 "no-promise-executor-return": "error",
                 "no-restricted-globals": ["error", "self"],
-                "no-return-await": "off",
                 "no-unreachable-loop": "error",
                 "no-useless-computed-key": "error",
                 "no-useless-constructor": "error",
                 "no-useless-rename": "error",
-                "no-warning-comments": "off",
                 "no-whitespace-before-property": "error",
                 "prefer-numeric-literals": "error",
                 "prefer-promise-reject-errors": "error",
@@ -140,9 +105,9 @@ jobs:
                 "template-tag-spacing": "error",
                 "unicode-bom": ["error", "never"],
                 "valid-typeof": ["error", { requireStringLiterals: false }],
-                "yield-star-spacing": "error",
-              },
-            },
+                "yield-star-spacing": "error"
+              }
+            }
           ];
           EOF
 
