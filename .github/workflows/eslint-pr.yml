@@ -19,21 +19,22 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
+      - name: Install ESLint dependencies
         run: |
           npm install --no-save \
             eslint@^9 \
             @eslint/js \
-            eslint-plugin-es-x
+            eslint-plugin-es \
+            eslint-plugin-es-x \
+            globals
 
-      - name: Write eslint.config.cjs
+      - name: Write ESLint flat config (CommonJS)
         run: |
-          rm eslint.config.*
           cat > eslint.config.cjs <<'EOF'
-          // Flat config for ESLint v9 using only eslint-plugin-es-x
           const js = require("@eslint/js");
           const esx = require("eslint-plugin-es-x");
-          
+          const globals = require("globals");
+
           module.exports = [
             {
               ignores: [
@@ -54,8 +55,15 @@ jobs:
               languageOptions: {
                 ecmaVersion: 2017,
                 sourceType: "commonjs",
+                globals: {
+                  ...globals.browser,
+                  ...globals.commonjs,
+                  ...globals.node,
+                  $tw: "writable",
+                },
               },
               rules: {
+                // ES2017 style + no ES2018+ features
                 "arrow-body-style": "error",
                 "arrow-parens": ["error", "as-needed"],
                 "arrow-spacing": ["error", { after: true, before: true }],
@@ -109,7 +117,6 @@ jobs:
               },
             },
           ];
-
           EOF
 
       - name: Setup Reviewdog
