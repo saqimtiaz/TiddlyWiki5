@@ -30,6 +30,7 @@ jobs:
 
       - name: Write ESLint flat config (CommonJS)
         run: |
+          rm eslint.config.*
           cat > eslint.config.cjs <<'EOF'
           const js = require("@eslint/js");
           const esx = require("eslint-plugin-es-x");
