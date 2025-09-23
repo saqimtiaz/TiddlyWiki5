@@ -31,10 +31,10 @@ jobs:
           rm eslint.config.*
           cat > eslint.config.cjs <<'EOF'
           // Flat config for ESLint v9 using only eslint-plugin-es-x
-          import js from "@eslint/js";
-          import esx from "eslint-plugin-es-x";
-
-          export default [
+          const js = require("@eslint/js");
+          const esx = require("eslint-plugin-es-x");
+          
+          module.exports = [
             {
               ignores: [
                 "boot/sjcl.js",
@@ -53,10 +53,9 @@ jobs:
             {
               languageOptions: {
                 ecmaVersion: 2017,
-                sourceType: "commonjs"
+                sourceType: "commonjs",
               },
               rules: {
-                // Your existing style + lint rules
                 "arrow-body-style": "error",
                 "arrow-parens": ["error", "as-needed"],
                 "arrow-spacing": ["error", { after: true, before: true }],
@@ -106,10 +105,11 @@ jobs:
                 "template-tag-spacing": "error",
                 "unicode-bom": ["error", "never"],
                 "valid-typeof": ["error", { requireStringLiterals: false }],
-                "yield-star-spacing": "error"
-              }
-            }
+                "yield-star-spacing": "error",
+              },
+            },
           ];
+
           EOF
 
       - name: Setup Reviewdog
