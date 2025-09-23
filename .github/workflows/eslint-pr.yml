@@ -27,15 +27,15 @@ jobs:
             eslint-plugin-es \
             globals
 
-      - name: Write eslint.config.js
+      - name: Write eslint.config.cjs
         run: |
-          rm eslint.config.js
+          rm -f eslint.config.* 
           cat > eslint.config.cjs <<'EOF'
-          // Flat config for ESLint v9
-          import js from "@eslint/js";
-          import globals from "globals";
+          // Flat config for ESLint v9 (CommonJS)
+          const js = require("@eslint/js");
+          const globals = require("globals");
 
-          export default [
+          module.exports = [
             {
               ignores: [
                 "boot/sjcl.js",
@@ -46,6 +46,7 @@ jobs:
                 "core/modules/utils/dom/csscolorparser.js",
                 "plugins/tiddlywiki/*/files/",
                 "eslint.config.js",
+                "eslint.config.cjs",
                 "playwright.config.js",
               ],
             },
@@ -65,7 +66,7 @@ jobs:
                 es: require("eslint-plugin-es"),
               },
               rules: {
-                // Forbid ES2018+ syntax and built-ins
+                // --- ES version restrictions ---
                 "es/no-bigint": "error",
                 "es/no-optional-chaining": "error",
                 "es/no-nullish-coalescing": "error",
@@ -77,7 +78,7 @@ jobs:
                 "es/no-new-in-es2022": "error",
                 "es/no-new-in-es2023": "error",
 
-                // Your style + lint rules
+                // --- Style and lint rules ---
                 "arrow-body-style": "error",
                 "arrow-parens": ["error", "as-needed"],
                 "arrow-spacing": ["error", { after: true, before: true }],
@@ -94,7 +95,14 @@ jobs:
                 "keyword-spacing": ["error", {
                   before: true,
                   after: false,
-                  overrides: { case: { after: true }, do: { after: true }, else: { after: true }, return: { after: true }, throw: { after: true }, try: { after: true } }
+                  overrides: {
+                    case: { after: true },
+                    do: { after: true },
+                    else: { after: true },
+                    return: { after: true },
+                    throw: { after: true },
+                    try: { after: true }
+                  }
                 }],
                 "lines-between-class-members": "error",
                 "max-classes-per-file": "error",
