@@ -29,7 +29,7 @@ jobs:
 
       - name: Write eslint.config.cjs
         run: |
-          rm -f eslint.config.* 
+          rm -f eslint.config.*
           cat > eslint.config.cjs <<'EOF'
           // Flat config for ESLint v9 (CommonJS)
           const js = require("@eslint/js");
@@ -67,10 +67,6 @@ jobs:
               },
               rules: {
                 // --- ES version restrictions ---
-                "es/no-bigint": "error",
-                "es/no-optional-chaining": "error",
-                "es/no-nullish-coalescing": "error",
-                "es/no-promise-all-settled": "error",
                 "es/no-new-in-es2018": "error",
                 "es/no-new-in-es2019": "error",
                 "es/no-new-in-es2020": "error",
@@ -78,7 +74,7 @@ jobs:
                 "es/no-new-in-es2022": "error",
                 "es/no-new-in-es2023": "error",
 
-                // --- Style and lint rules ---
+                // --- Style + lint rules ---
                 "arrow-body-style": "error",
                 "arrow-parens": ["error", "as-needed"],
                 "arrow-spacing": ["error", { after: true, before: true }],
