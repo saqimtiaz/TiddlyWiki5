@@ -29,7 +29,8 @@ jobs:
 
       - name: Write eslint.config.js
         run: |
-          cat > eslint.config.js <<'EOF'
+          rm eslint.config.js
+          cat > eslint.config.cjs <<'EOF'
           // Flat config for ESLint v9
           import js from "@eslint/js";
           import globals from "globals";
