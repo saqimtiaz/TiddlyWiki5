@@ -33,5 +33,5 @@ jobs:
         with:
           eslint_flags: '.'
           reporter: github-pr-check
-          fail-level: error
+          fail_level: error
           level: error
