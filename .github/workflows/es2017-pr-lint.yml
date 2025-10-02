@@ -1,52 +1,37 @@
-name: ES2017 PR Lint
+name: Lint
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - master
 
 permissions:
-  contents: read       # Needed to checkout code and compute diffs
+  contents: read
+  # Needed for GitHub Checks API
+  checks: write
 
 jobs:
-  lint-es2017:
+  eslint:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the PR branch
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 2. Set up Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3. Install ESLint, plugin, globals, and reviewdog temporarily
-      - name: Install ESLint & plugins
-        run: |
-          npm init -y
-          npm install eslint eslint-plugin-es globals reviewdog
+      - name: Install dependencies
+        run: npm ci
 
-      # 4. Create ESLint config enforcing ES2017
-      - name: Create ESLint config
-        run: |
-          echo 'module.exports = {
-            parserOptions: { ecmaVersion: 2017 },
-            plugins: ["es"],
-            rules: {
-              "es/no-new-in-es2018": "error",
-              "es/no-new-in-es2019": "error",
-              "es/no-new-in-es2020": "error",
-              "es/no-new-in-es2021": "error",
-              "es/no-new-in-es2022": "error",
-              "es/no-new-in-es2023": "error"
-            },
-            globals: require("globals").es2017
-          };' > .eslintrc.js
-
-      # 5. Run ESLint and report changes only
-      - name: Lint changed lines in PR
-        run: |
-          npx eslint . -f unix | npx reviewdog \
-            -f=eslint \
-            -reporter=github-pr-check \
-            -filter-mode=diff_context
+      - name: Run ESLint with reviewdog (GitHub Checks)
+        uses: reviewdog/action-eslint@v1
+        with:
+          eslint_flags: '.'
+          reporter: github-pr-check
+          fail_on_error: true
+          level: error
