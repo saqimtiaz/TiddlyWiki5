@@ -1,4 +1,4 @@
-name: Lint
+name: ESLint
 
 on:
   pull_request:
@@ -36,3 +36,4 @@ jobs:
           reporter: github-pr-check
           fail_level: error
           level: error
+          tool_name: ESLint PR code
