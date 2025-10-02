@@ -8,6 +8,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: lint-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   # Needed for GitHub Checks API
