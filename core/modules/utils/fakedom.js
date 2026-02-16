@@ -4,152 +4,126 @@ type: application/javascript
 module-type: global
 
 A barebones implementation of DOM interfaces needed by the rendering mechanism.
-
 \*/
 
 "use strict";
 
 // Sequence number used to enable us to track objects for testing
-var sequenceNumber = null;
+let sequenceNumber = null;
 
-var bumpSequenceNumber = function(object) {
+const bumpSequenceNumber = obj => {
 	if(sequenceNumber !== null) {
-		object.sequenceNumber = sequenceNumber++;
+		obj.sequenceNumber = sequenceNumber++;
 	}
 };
 
-var TW_Node = function (){
+// The Node prototype, never constructed
+const TW_Node = function() {
 	throw TypeError("Illegal constructor");
 };
 
 Object.defineProperty(TW_Node.prototype, 'ELEMENT_NODE', {
-	get: function() {
-		return 1;
-	}
+	get: () => 1
 });
 
 Object.defineProperty(TW_Node.prototype, 'TEXT_NODE', {
-	get: function() {
-		return 3;
-	}
+	get: () => 3
 });
 
-var TW_TextNode = function(text) {
+// TextNode constructor
+const TW_TextNode = function(text) {
 	bumpSequenceNumber(this);
 	this.textContent = text + "";
 	this.children = [];
 };
-
-Object.setPrototypeOf(TW_TextNode.prototype,TW_Node.prototype);
+Object.setPrototypeOf(TW_TextNode.prototype, TW_Node.prototype);
 
 Object.defineProperty(TW_TextNode.prototype, "nodeType", {
-	get: function() {
-		return this.TEXT_NODE;
-	}
+	get: function() { return this.TEXT_NODE; }
 });
 
 Object.defineProperty(TW_TextNode.prototype, "formattedTextContent", {
-	get: function() {
-		return this.textContent.replace(/(\r?\n)/g,"");
-	}
+	get: function() { return this.textContent.replace(/(\r?\n)/g,""); }
 });
 
-var TW_Style = function(el) {
-	// Define the internal style object
-	var styleObject = {
-		// Method to get the entire style object
-		get: function() {
-			return el._style;
-		},
-		// Method to set styles using a string (e.g. "color:red; background-color:blue;")
-		set: function(str) {
-			var self = this;
-			str = str || "";
-			$tw.utils.each(str.split(";"),function(declaration) {
-				var parts = declaration.split(":"),
-					name = $tw.utils.trim(parts[0]),
-					value = $tw.utils.trim(parts[1]);
+// Style helper
+const TW_Style = el => {
+	const style = el._style;
+
+	const api = {
+		get() { return style; },
+		set(str) {
+			if(!str) return;
+			const parts = str.split(";");
+			for(let i=0; i<parts.length; i++) {
+				const decl = parts[i];
+				if(!decl) continue;
+				const p = decl.split(":");
+				const name = $tw.utils.trim(p[0]);
+				const value = $tw.utils.trim(p[1]);
 				if(name && value) {
-					el._style[$tw.utils.convertStyleNameToPropertyName(name)] = value;
+					style[$tw.utils.convertStyleNameToPropertyName(name)] = value;
 				}
-			});
+			}
 		},
-		// Method to set a specific property without transforming the property name, such as a custom property
-		setProperty: function(name, value) {
-			el._style[name] = value;
+		setProperty(name,value) {
+			style[name] = value;
 		}
 	};
 
-	// Return a Proxy to handle direct access to individual style properties
-	return new Proxy(styleObject, {
-		get: function(target, property) {
-			// If the property exists on styleObject, return it (get, set, setProperty methods)
-			if (property in target) {
-				return target[property];
-			}
-			// Otherwise, return the corresponding property from _style
-			return el._style[$tw.utils.convertStyleNameToPropertyName(property)] || "";
+	return new Proxy(api, {
+		get(target, prop) {
+			if(prop in target) return target[prop];
+			return style[$tw.utils.convertStyleNameToPropertyName(prop)] || "";
 		},
-		set: function(target, property, value) {
-			// Set the property in _style
-			el._style[$tw.utils.convertStyleNameToPropertyName(property)] = value;
+		set(target, prop, value) {
+			style[$tw.utils.convertStyleNameToPropertyName(prop)] = value;
 			return true;
 		}
 	});
 };
 
-var TW_Element = function(tag, namespace) {
+// Element constructor
+const TW_Element = function(tag, namespace) {
 	bumpSequenceNumber(this);
 	this.isTiddlyWikiFakeDom = true;
 	this.tag = tag;
 	this.attributes = {};
 	this.isRaw = false;
 	this.children = [];
-	this._style = {}; // Internal style object
-	this.style = new TW_Style(this); // Proxy for style management
+	this._style = {};
+	this.style = TW_Style(this);
 	this.namespaceURI = namespace || "http://www.w3.org/1999/xhtml";
 };
+Object.setPrototypeOf(TW_Element.prototype, TW_Node.prototype);
 
-
-Object.setPrototypeOf(TW_Element.prototype,TW_Node.prototype);
-
+// Node type
 Object.defineProperty(TW_Element.prototype, "nodeType", {
-	get: function() {
-		return this.ELEMENT_NODE;
-	}
+	get: function() { return this.ELEMENT_NODE; }
 });
 
+// Attributes
 TW_Element.prototype.getAttribute = function(name) {
-	if(this.isRaw) {
-		throw "Cannot getAttribute on a raw TW_Element";
-	}
+	if(this.isRaw) throw "Cannot getAttribute on a raw TW_Element";
 	return this.attributes[name];
 };
 
 TW_Element.prototype.setAttribute = function(name,value) {
-	if(this.isRaw) {
-		throw "Cannot setAttribute on a raw TW_Element";
-	}
-	if(name === "style") {
-		this.style.set(value);
-	} else {
-		this.attributes[name] = value + "";
-	}
+	if(this.isRaw) throw "Cannot setAttribute on a raw TW_Element";
+	if(name === "style") this.style.set(value);
+	else this.attributes[name] = value + "";
 };
 
-TW_Element.prototype.setAttributeNS = function(namespace,name,value) {
+TW_Element.prototype.setAttributeNS = function(ns,name,value) {
 	this.setAttribute(name,value);
 };
 
 TW_Element.prototype.removeAttribute = function(name) {
-	if(this.isRaw) {
-		throw "Cannot removeAttribute on a raw TW_Element";
-	}
-	if($tw.utils.hop(this.attributes,name)) {
-		delete this.attributes[name];
-	}
+	if(this.isRaw) throw "Cannot removeAttribute on a raw TW_Element";
+	if($tw.utils.hop(this.attributes,name)) delete this.attributes[name];
 };
 
+// Children manipulation
 TW_Element.prototype.appendChild = function(node) {
 	this.children.push(node);
 	node.parentNode = this;
@@ -157,119 +131,89 @@ TW_Element.prototype.appendChild = function(node) {
 
 TW_Element.prototype.insertBefore = function(node,nextSibling) {
 	if(nextSibling) {
-		var p = this.children.indexOf(nextSibling);
-		if(p !== -1) {
-			this.children.splice(p,0,node);
+		const i = this.children.indexOf(nextSibling);
+		if(i !== -1) {
+			this.children.splice(i,0,node);
 			node.parentNode = this;
-		} else {
-			this.appendChild(node);
+			return;
 		}
-	} else {
-		this.appendChild(node);
 	}
+	this.appendChild(node);
 };
 
 TW_Element.prototype.removeChild = function(node) {
-	var p = this.children.indexOf(node);
-	if(p !== -1) {
-		this.children.splice(p,1);
-	}
+	const i = this.children.indexOf(node);
+	if(i !== -1) this.children.splice(i,1);
 };
 
 TW_Element.prototype.hasChildNodes = function() {
-	return !!this.children.length;
+	return this.children.length > 0;
 };
 
 Object.defineProperty(TW_Element.prototype, "childNodes", {
-	get: function() {
-		return this.children;
-	}
+	get: function() { return this.children; }
 });
 
 Object.defineProperty(TW_Element.prototype, "firstChild", {
-	get: function() {
-		return this.children[0];
-	}
+	get: function() { return this.children[0]; }
 });
 
-TW_Element.prototype.addEventListener = function(type,listener,useCapture) {
-	// Do nothing
+// Event
+TW_Element.prototype.addEventListener = function() {
+	// noop
 };
 
+// Common properties
 Object.defineProperty(TW_Element.prototype, "tagName", {
-	get: function() {
-		return this.tag || "";
-	}
+	get: function() { return this.tag || ""; }
 });
 
 Object.defineProperty(TW_Element.prototype, "className", {
-	get: function() {
-		return this.attributes["class"] || "";
-	},
-	set: function(value) {
-		this.attributes["class"] = value + "";
-	}
+	get: function() { return this.attributes["class"] || ""; },
+	set: function(value) { this.attributes["class"] = value + ""; }
 });
 
 Object.defineProperty(TW_Element.prototype, "value", {
-	get: function() {
-		return this.attributes.value || "";
-	},
-	set: function(value) {
-		this.attributes.value = value + "";
-	}
+	get: function() { return this.attributes.value || ""; },
+	set: function(value) { this.attributes.value = value + ""; }
 });
 
+// HTML serialization
 Object.defineProperty(TW_Element.prototype, "outerHTML", {
 	get: function() {
-		var output = [],attr,a,v;
-		output.push("<",this.tag);
-		if(this.attributes) {
-			attr = [];
-			for(a in this.attributes) {
-				attr.push(a);
-			}
-			attr.sort();
-			for(a=0; a<attr.length; a++) {
-				v = this.attributes[attr[a]];
-				if(v !== undefined) {
-					output.push(" ",attr[a],"=\"",$tw.utils.htmlEncode(v),"\"");
-				}
-			}
+		const out = ["<", this.tag];
+		const attrs = Object.keys(this.attributes).sort();
+		for(const k of attrs) {
+			const v = this.attributes[k];
+			if(v !== undefined) out.push(" ", k, "=\"", $tw.utils.htmlEncode(v), "\"");
 		}
-		if(this._style) {
-			var style = [];
-			for(var s in this._style) {
-				style.push($tw.utils.convertPropertyNameToStyleName(s) + ":" + this._style[s] + ";");
+
+		const styleKeys = Object.keys(this._style);
+		if(styleKeys.length) {
+			out.push(" style=\"");
+			for(const s of styleKeys) {
+				out.push($tw.utils.convertPropertyNameToStyleName(s), ":", this._style[s], ";");
 			}
-			if(style.length > 0) {
-				output.push(" style=\"",style.join(""),"\"");
-			}
+			out.push("\"");
 		}
-		output.push(">");
+
+		out.push(">");
 		if($tw.config.htmlVoidElements.indexOf(this.tag) === -1) {
-			output.push(this.innerHTML);
-			output.push("</",this.tag,">");
+			out.push(this.innerHTML, "</", this.tag, ">");
 		}
-		return output.join("");
+		return out.join("");
 	}
 });
 
 Object.defineProperty(TW_Element.prototype, "innerHTML", {
 	get: function() {
-		if(this.isRaw) {
-			return this.rawHTML;
-		} else {
-			var b = [];
-			$tw.utils.each(this.children,function(node) {
-				if(node instanceof TW_Element) {
-					b.push(node.outerHTML);
-				} else if(node instanceof TW_TextNode) {
-					b.push($tw.utils.htmlTextEncode(node.textContent));
-				}
-			});
-			return b.join("");
+		if(this.isRaw) return this.rawHTML;
+		let out = [];
+		for(const node of this.children) {
+			if(node instanceof TW_Element) out.push(node.outerHTML);
+			else out.push($tw.utils.htmlTextEncode(node.textContent));
 		}
+		return out.join("");
 	},
 	set: function(value) {
 		this.isRaw = true;
@@ -280,29 +224,15 @@ Object.defineProperty(TW_Element.prototype, "innerHTML", {
 
 Object.defineProperty(TW_Element.prototype, "textInnerHTML", {
 	set: function(value) {
-		if(this.isRaw) {
-			this.rawTextContent = value;
-		} else {
-			throw "Cannot set textInnerHTML of a non-raw TW_Element";
-		}
+		if(!this.isRaw) throw "Cannot set textInnerHTML of a non-raw TW_Element";
+		this.rawTextContent = value;
 	}
 });
 
 Object.defineProperty(TW_Element.prototype, "textContent", {
 	get: function() {
-		if(this.isRaw) {
-			if(this.rawTextContent === null) {
-				return "";
-			} else {
-				return this.rawTextContent;
-			}
-		} else {
-			var b = [];
-			$tw.utils.each(this.children,function(node) {
-				b.push(node.textContent);
-			});
-			return b.join("");
-		}
+		if(this.isRaw) return this.rawTextContent === null ? "" : this.rawTextContent;
+		return this.children.map(n => n.textContent).join("");
 	},
 	set: function(value) {
 		this.children = [new TW_TextNode(value)];
@@ -311,42 +241,24 @@ Object.defineProperty(TW_Element.prototype, "textContent", {
 
 Object.defineProperty(TW_Element.prototype, "formattedTextContent", {
 	get: function() {
-		if(this.isRaw) {
-			return "";
-		} else {
-			var b = [],
-				isBlock = $tw.config.htmlBlockElements.indexOf(this.tag) !== -1;
-			if(isBlock) {
-				b.push("\n");
-			}
-			if(this.tag === "li") {
-				b.push("* ");
-			}
-			$tw.utils.each(this.children,function(node) {
-				b.push(node.formattedTextContent);
-			});
-			if(isBlock) {
-				b.push("\n");
-			}
-			return b.join("");
-		}
+		if(this.isRaw) return "";
+		let out = "";
+		const isBlock = $tw.config.htmlBlockElements.indexOf(this.tag) !== -1;
+		if(isBlock) out += "\n";
+		if(this.tag === "li") out += "* ";
+		for(const node of this.children) out += node.formattedTextContent;
+		if(isBlock) out += "\n";
+		return out;
 	}
 });
 
-var document = {
-	setSequenceNumber: function(value) {
-		sequenceNumber = value;
-	},
-	createElementNS: function(namespace,tag) {
-		return new TW_Element(tag,namespace);
-	},
-	createElement: function(tag) {
-		return new TW_Element(tag);
-	},
-	createTextNode: function(text) {
-		return new TW_TextNode(text);
-	},
-	compatMode: "CSS1Compat", // For KaTeX to know that we're not a browser in quirks mode
+// Fake document
+const document = {
+	setSequenceNumber(value) { sequenceNumber = value; },
+	createElementNS(ns, tag) { return new TW_Element(tag, ns); },
+	createElement(tag) { return new TW_Element(tag); },
+	createTextNode(text) { return new TW_TextNode(text); },
+	compatMode: "CSS1Compat",
 	isTiddlyWikiFakeDom: true
 };
 
